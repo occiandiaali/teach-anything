@@ -1,0 +1,54 @@
+<section class="bg-gray-50 py-24 sm:py-32">
+  <div id="included" class="m-8 mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-base font-semibold leading-7 text-green-600">
+        Everything included
+      </h2>
+      <p
+        class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+      >
+        Stop delaying. Start teaching.
+      </p>
+      <p class="mt-6 text-lg leading-8 text-gray-600">
+        Every feature your SaaS needs from day one. No piecing together
+        tutorials. No debugging someone else's half-baked boilerplate.
+      </p>
+    </div>
+    <div class="flex justify-center items-center m-4">
+      <a
+        href="#started"
+        class="rounded-lg bg-green-500 px-6 py-2 text-base font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-colors"
+      >
+        Get started for free
+      </a>
+    </div>
+    <div class="mx-auto mt-24 max-w-7xl sm:mt-20 lg:mt-8">
+      <div class="relative pl-4" id="itemList"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const features = [
+    "⚡Launch in minutes",
+    "Pre-wired auth, payments, and email. Clone, configure, deploy. Your competitors are still setting up their dev environment.",
+
+    "🔒Auth that just works",
+
+    "Google OAuth, magic links, and session management — all done. No more reading docs at 2am wondering why cookies aren't persisting.",
+
+    "💳Stripe, without the headache",
+
+    "Subscriptions, one-time payments, webhooks, and a billing portal. Tested, production-ready, and actually maintainable.",
+    "📧 Transactional email",
+
+    "Welcome emails, password resets, upgrade confirmations — templated and ready. Resend integration included.",
+  ];
+  const container = document.getElementById("itemList");
+
+  features.forEach((item) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = item;
+    container.appendChild(listItem);
+  });
+</script>

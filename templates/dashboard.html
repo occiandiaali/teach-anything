@@ -1,0 +1,240 @@
+<!-- <!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TeachAnything | Your dashboard</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        height: 90%;
+        background-color: aliceblue;
+        padding: 8px;
+      "
+    >
+      <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+        Welcome {{ user.username }}
+      </h1>
+      <a href="/logout" class="text-blue-600 underline">Logout</a><br />
+      <p>Email: {{email}}</p>
+      <p>Bio: {{user.bio}}</p>
+
+      <h2 class="text-2xl font-bold mt-6">Upcoming Bookings</h2>
+<ul>
+  {% for booking in bookings %}
+    <li class="border-b py-2">
+      {{ booking.course_name }} — {{ booking.scheduled_at }}
+      <span class="text-gray-600">Learner: {{ booking.learner_email }}</span>
+      <a href="{{ booking.meet_url }}" target="_blank" class="text-blue-600 underline">Join Meeting</a>
+    </li>
+  {% endfor %}
+</ul>
+
+
+      <h2 class="text-2xl font-bold mt-6">Manage Your Classes</h2>
+
+<form action="/dashboard/slots/add" method="POST" class="mt-4">
+  <label>Course Name</label>
+  <input type="text" name="course_name" required class="border p-2 rounded w-full">
+
+  <label>Date & Time</label>
+  <input type="datetime-local" name="slot" required class="border p-2 rounded w-full">
+
+  <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Add Slot</button>
+</form>
+
+<ul class="mt-6">
+  {% for slot in slots %}
+    <li class="flex justify-between items-center border-b py-2">
+      <span>{{ slot.course_name }} — {{ slot.slot }}</span>
+      <form action="/dashboard/slots/delete/{{ slot.id }}" method="POST">
+        <button class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+
+
+      <a href="/confirm_delete" style="color: red">Delete Account</a><br />
+
+      <div id="modal-container"></div>
+    </div>
+  </body>
+</html> -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TeachAnything | Dashboard</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto bg-white shadow rounded p-6">
+      <!-- 1. Account Info -->
+      <h1 class="text-xl text-gray-400 font-bold mb-4">
+        Welcome {{ user.username }}
+      </h1>
+      <p>Email: {{ email }}</p>
+      <p>Bio: {{ user.bio }}</p>
+      <a href="/logout" class="text-blue-600 underline">Logout</a> |
+      <a href="/confirm_delete" class="text-red-600 underline"
+        >Delete Account</a
+      >
+
+      <h2 class="text-3xl font-semibold mt-6">Your Dashboard</h2>
+
+      <h2 class="text-2xl font-semibold mt-6">Edit Account Info</h2>
+      <form action="/update_account" method="POST" class="mt-2 space-y-2">
+        <input
+          type="text"
+          name="username"
+          value="{{ user.username }}"
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="password"
+          name="new_password"
+          placeholder="New Password"
+          class="border p-2 rounded w-full"
+        />
+        <textarea name="bio" class="border p-2 rounded w-full">
+{{ user.bio }}</textarea
+        >
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
+          Update
+        </button>
+      </form>
+
+      <!-- 2. Manage Classes -->
+      <h2 class="text-2xl font-semibold mt-6">Manage Classes</h2>
+      <form action="/dashboard/slots/add" method="POST" class="mt-2 space-y-2">
+        <input
+          type="text"
+          name="course_name"
+          placeholder="Course Name"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="number"
+          name="course_duration"
+          placeholder="Course Duration"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="number"
+          name="course_price"
+          placeholder="Course Price"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="text"
+          name="course_description"
+          placeholder="Course Description"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="text"
+          name="course_requirements"
+          placeholder="Course Requirements"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <input
+          type="datetime-local"
+          name="slot"
+          required
+          class="border p-2 rounded w-full"
+        />
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+          Add Class</button
+        ><br />
+        <span class="htmx-indicator ml-2 text-sm text-blue-500"
+          >⏳ Adding...</span
+        >
+      </form>
+
+      <!-- 3. List of Created Classes -->
+      <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
+      <ul class="divide-y">
+        {% for slot in slots %}
+        <li class="py-2 flex justify-between items-center">
+          <span id="slot-{{ slot.id }}">
+            {{ slot.course_name }} — {{ slot.slot }} - {{slot.course_duration}}
+            mins
+          </span>
+
+          <div class="space-x-2">
+            <!-- Edit button -->
+            <button
+              hx-get="/dashboard/slots/edit/{{ slot.id }}"
+              hx-target="#slot-{{ slot.id }}"
+              hx-swap="outerHTML"
+              class="bg-yellow-500 text-white px-2 py-1 rounded"
+            >
+              Edit
+            </button>
+
+            <!-- Delete button -->
+            <form
+              action="/dashboard/slots/delete/{{ slot.id }}"
+              method="POST"
+              style="display: inline"
+            >
+              <button
+                type="submit"
+                class="bg-red-500 text-white px-2 py-1 rounded"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- 4. Upcoming Booked Classes -->
+      <h2 class="text-2xl font-semibold mt-6">Upcoming Bookings</h2>
+      <ul class="divide-y">
+        {% for booking in bookings %}
+        <li class="py-2">
+          <strong>{{ booking.course_name }}</strong> — {{ booking.scheduled_at
+          }}
+          <br />
+          Learner: {{ booking.learner_email }}
+          <br />
+          <a
+            href="{{ booking.meet_url }}"
+            target="_blank"
+            class="text-blue-600 underline"
+            >Join Meeting</a
+          >
+        </li>
+        {% endfor %}
+      </ul>
+      <!-- <a href="/confirm_delete" style="color: red">Delete Account</a><br /> -->
+
+      <div id="modal-container"></div>
+    </div>
+  </body>
+</html>

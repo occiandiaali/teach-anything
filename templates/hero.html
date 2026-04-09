@@ -1,0 +1,104 @@
+<section
+  class="relative isolate overflow-hidden bg-white px-6 pb-20 sm:pt-32 lg:px-8"
+>
+  <div class="m-8 mx-auto max-w-2xl text-center">
+    <img
+      style="position: absolute; top: 3%; left: 5%"
+      src="{{url_for('static', filename='/images/teachanything-logo.png')}}"
+      width="200px"
+      height="38px"
+    />
+    <div class="mb-8 md:mt-6 flex justify-center trusted">
+      <span
+        class="rounded-full bg-green-50 px-4 py-1.5 text-sm font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
+      >
+        Trusted by 500+ learners
+      </span>
+    </div>
+
+    <h1 class="text-5xl font-bold tracking-tight text-gray-900 sm:text-7xl">
+      Monetize your skills
+      <span class="text-green-500"> today, not tomorrow</span>
+    </h1>
+
+    <p class="mt-6 text-lg leading-8 text-gray-600">
+      Teach others what you know, and get paid for it. Everything you need to
+      launch: auth, payments, courses shop window, and a conversion-optimized
+      CTA.
+    </p>
+    <div class="mt-10 flex items-center justify-center gap-x-6">
+      <a
+        href="#started"
+        class="rounded-lg bg-green-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-colors"
+      >
+        Get started for free
+      </a>
+      <a
+        href="#included"
+        class="text-base font-semibold leading-7 text-gray-900 hover:text-indigo-600 transition-colors"
+      >
+        See what's included <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div id="features" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Modal content goes here.</p>
+  </div>
+</div>
+
+<style>
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    height: 450px;
+  }
+  .close {
+    font-size: x-large;
+    cursor: pointer;
+    font-weight: 800;
+    color: red;
+  }
+  @media (max-width: 600px) {
+    .trusted {
+      margin-top: 40%;
+    }
+  }
+</style>
+
+<script>
+  function openModal() {
+    document.getElementById("features").style.display = "block";
+  }
+
+  // Close the modal when the user clicks on <span> (x)
+  document.querySelector(".close").onclick = function () {
+    document.getElementById("features").style.display = "none";
+  };
+
+  // Close the modal when the user clicks anywhere outside of the modal
+  window.onclick = function (event) {
+    if (event.target == document.getElementById("myModal")) {
+      document.getElementById("features").style.display = "none";
+    }
+  };
+</script>

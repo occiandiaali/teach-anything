@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .txt-overlay-img {
+        box-sizing: border-box;
+        position: relative;
+        margin: 8px;
+        max-width: 400px;
+        max-height: 400px;
+        width: 100%;
+      }
+      .txt-overlay-img .figcaption {
+        box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        background: linear-gradient(0deg, #00000088 30%, #ffffff44 100%);
+        color: #fff;
+        padding: 16px;
+        font-family: sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+        font-size: 24px;
+      }
+      .txt-overlay-img h2 {
+        position: absolute;
+        top: 6%;
+        left: 10%;
+      }
+      @media (max-width: 600px) {
+        .txt-overlay-img .figcaption {
+          font-size: smaller;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2
+      class="p-6 text-base text-center font-semibold leading-7 text-green-600"
+      id="onboarding"
+    >
+      3 easy steps to start
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div class="p-4 size-24">
+        <div class="bg-black-100 rounded-lg shadow-md p-6 txt-overlay-img">
+          <!-- <img src="https://picsum.photos/id/700/400/400.jpg" /> -->
+          <img src="https://picsum.photos/id/270/400/400.jpg" />
+          <h2 class="text-5xl text-pink-600 font-bold">Step 1</h2>
+          <p class="text-gray-600 figcaption">
+            Create your personal account by registering your unique username,
+            email, and skillset. Immediately claim 2 unique URLs for your new
+            account (1 private, 1 public).
+          </p>
+        </div>
+      </div>
+      <div class="p-4 size-24">
+        <div class="bg-black-100 rounded-lg shadow-md p-6 txt-overlay-img">
+          <!-- <img src="https://picsum.photos/id/871/400/400.jpg" /> -->
+          <img src="https://picsum.photos/id/171/400/400.jpg" />
+          <h2 class="text-5xl text-green-200 font-bold">Step 2</h2>
+          <p class="text-gray-600 figcaption">
+            Visit your private URL to customize your settings & classes window,
+            create classes & set available slots. Share your public URL on
+            social media, or anywhere, to invite learners.
+          </p>
+        </div>
+      </div>
+      <div class="p-4 size-24">
+        <div class="bg-black-100 rounded-lg shadow-md p-6 txt-overlay-img">
+          <img src="https://picsum.photos/id/971/400/400.jpg" />
+          <h2 class="text-5xl text-blue-800 font-bold">Step 3</h2>
+          <p class="text-gray-600 figcaption">
+            Interested learners visit your unique URL, and book for classes by
+            scheduling a slot. Confirm learner's payment & teach via video call.
+            Earn star ratings. Repeat.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

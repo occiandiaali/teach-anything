@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{url_for('static', filename='/images/skills.svg')}}"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TeachAnything | Knowledge is power</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .flash .error {
+        color: red;
+      }
+      .flash .success {
+        color: green;
+      }
+      .flash .info {
+        color: teal;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 h-screen">
+    <!--class="bg-gray-100 flex items-center justify-center h-screen"-->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+      <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %} {% include 'hero.html' %} {% include
+    'features.html' %} {% include 'onboarding.html' %}
+
+    <h2
+      class="p-6 text-base text-center font-semibold leading-7 text-green-600"
+    >
+      Get started now
+    </h2>
+    <p
+      class="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+    >
+      Sign up to start teaching.
+    </p>
+    <div
+      class="bg-white p-4 m-4 rounded shadow-md w-96 flex justify-center items-center"
+      id="started"
+      style="margin: 2% auto"
+    >
+      <form
+        hx-post="/register"
+        hx-target="#modal-container"
+        hx-swap="innerHTML"
+        class="space-y-2"
+      >
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          class="w-full border p-2 rounded"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Your Email"
+          class="w-full border p-2 rounded"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          class="w-full border p-2 rounded"
+          required
+        />
+        <textarea
+          name="bio"
+          placeholder="Short description of your specialty"
+          class="w-full border p-2 rounded"
+        ></textarea>
+        <button
+          type="submit"
+          class="bg-black text-white px-4 py-2 rounded hover:bg-white hover:text-black transition-colors"
+        >
+          Get started for free</button
+        ><br />
+        <span class="htmx-indicator ml-2 text-sm text-green-500"
+          >⏳ Generating...</span
+        >
+      </form>
+
+      <!-- Empty container for modal -->
+      <div id="modal-container"></div>
+    </div>
+    {% include 'stickybar.html' %}
+  </body>
+</html>
