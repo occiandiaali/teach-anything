@@ -10,14 +10,28 @@
   <body class="bg-gray-100">
     <!--class="bg-gray-100 flex items-center justify-center h-screen"-->
     <nav>
-      <img
+      <!-- <img
         style="position: absolute; top: 0; left: 3%"
         src="{{url_for('static', filename='/images/teachanything-logo.png')}}"
         width="250px"
         height="68px"
-      />
+      /> -->
+      <h1
+        style="
+          position: absolute;
+          top: 3%;
+          left: 5%;
+          width: 200px;
+          height: 38px;
+          font-family: Arial, Helvetica, sans-serif;
+          text-shadow: 1px 1px 2px green;
+        "
+        class="font-bold text-lg md:text-xl"
+      >
+        TeachSomeone
+      </h1>
     </nav>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
       <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
         <h1 class="text-2xl font-bold mb-4">
           Learn with {{ profile.username }}
@@ -46,6 +60,60 @@
             class="bg-green-500 text-white px-4 py-2 m-4 rounded"
           >
             Book this training
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div> -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
+      <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
+        <h1 class="text-2xl font-bold mb-4">
+          Learn with {{ profile.username }}
+        </h1>
+        <p>{{ profile.bio or "Learn with me, as I TeachSomeone!" }}</p>
+      </div>
+
+      {% for course, course_slots in slots|groupby("course_name") %}
+      <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
+        <h1 class="text-xl font-bold mb-4">{{ course }}</h1>
+        <p>{{ course_slots[0].course_description }}</p>
+        <p>
+          <strong>Session</strong>: {{ course_slots[0].course_duration }}
+          minutes
+        </p>
+        <p><strong>Pre</strong>: {{ course_slots[0].course_requirements }}</p>
+        <p><strong>Cost</strong>: ₦{{ course_slots[0].course_price }}</p>
+
+        <p><strong>Slots</strong>:</p>
+
+        <form action="/book" method="POST">
+          <input type="hidden" name="course_name" value="{{ course }}" />
+          <div class="space-y-2">
+            {% for slot in course_slots %}
+            <label class="block">
+              <input
+                type="radio"
+                name="selected_slot"
+                value="{{ slot.id }}"
+                required
+              />
+              {{ slot.slot|format_datetime }}
+            </label>
+            {% endfor %}
+          </div>
+          <input
+            type="email"
+            name="learner_email"
+            placeholder="Enter your email"
+            required
+            class="border p-2 m-4 rounded"
+          />
+
+          <button
+            type="submit"
+            class="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Proceed to Payment
           </button>
         </form>
       </div>
