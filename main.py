@@ -499,6 +499,7 @@ def new_slot_input(username):
 #         return "Unauthorized", 403
     
 #     return f"""
+#     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 #     <form hx-post="/{username}/dashboard/slots/update/{slot['id']}" hx-target="#slot-{slot['id']}" hx-swap="outerHTML">
 #       <input type="text" name="course_name" value="{slot['course_name']}" class="border p-1 rounded">
 #       <input type="number" name="course_duration" value="{slot['course_duration']}" class="border p-1 rounded">
@@ -506,7 +507,7 @@ def new_slot_input(username):
 #       <input type="text" name="course_description" value="{slot['course_description']}" class="border p-1 rounded">
 #       <input type="text" name="course_requirements" value="{slot['course_requirements']}" class="border p-1 rounded">
 #       <input type="datetime-local" name="slot" value="{slot['slot']}" class="border p-1 rounded">
-#       <button type="submit" class="bg-green-500 text-white px-2 py-1 rounded">Save</button><br/>
+#       <button type="submit" class="bg-green-500 text-white hover:bg-green-200 px-2 py-1 rounded">Save</button><br/>
 #         <button type="button" 
 #           hx-get="/{username}/dashboard/slots/view/{slot['id']}" 
 #           hx-target="#slot-{slot['id']}" 
@@ -519,6 +520,22 @@ def new_slot_input(username):
 #     <span class="htmx-indicator ml-2 text-sm text-green-500">⏳ Saving...</span>
 #     </form>
 #     """
+
+@app.route("/<username>/dashboard/slots/edit/<slot_id>", methods=["GET"])
+@login_required
+def edit_slot(username, slot_id):
+    slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
+    if not slot.data:
+        return "Slot not found", 404
+    slot = slot.data[0]
+
+    # Verify ownership
+    if session["user_id"] != slot["trainer_id"]:
+        return "Unauthorized", 403
+
+    # Render a partial template (just the form for this slot)
+    return render_template("partials/edit_slot_form.html", slot=slot, username=username)
+
 
 # @app.route("/<username>/dashboard/slots/view/<slot_id>", methods=["GET"])
 # @login_required
@@ -564,6 +581,32 @@ def new_slot_input(username):
 #     }).eq("id", slot_id).execute()
 
 #     return f"<span id='slot-{slot_id}'>{course_name} — {slot_time} - {course_duration} </span>"
+
+@app.route("/<username>/dashboard/slots/update/<slot_id>", methods=["POST"])
+@login_required
+def update_slot(username, slot_id):
+    slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
+    if not slot.data:
+        return "Slot not found", 404
+    slot = slot.data[0]
+
+    if session["user_id"] != slot["trainer_id"]:
+        return "Unauthorized", 403
+
+    # Update slot with form data
+    updated = supabase.table("available_slots").update({
+        "course_name": request.form["course_name"],
+        "course_duration": request.form["course_duration"],
+        "course_price": request.form["course_price"],
+        "course_description":request.form["course_description"],
+        "course_requirements":request.form["course_requirements"],
+        "slot": request.form["slot"]
+    }).eq("id", slot_id).execute()
+
+    slot = updated.data[0]
+    # Render back the "view" partial (non-edit mode)
+    return render_template("partials/slot_view.html", slot=slot, username=username)
+
 
 
 @app.route("/<username>/dashboard/slots/delete/<slot_id>", methods=["POST"])

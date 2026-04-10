@@ -1,0 +1,26 @@
+<div id="slot-{{ slot.id }}" class="border p-3 rounded shadow-sm">
+  <h3 class="text-lg font-semibold">{{ slot.course_name }}</h3>
+  <p class="text-gray-600">Time: {{ slot.slot|format_datetime }}</p>
+  <p class="text-gray-400 text-sm">
+    Duration: {{ slot.course_duration }} minutes
+  </p>
+
+  <!-- <div class="mt-2 flex gap-2">
+    <button
+      hx-get="/{{ username }}/dashboard/slots/edit/{{ slot.id }}"
+      hx-target="#slot-{{ slot.id }}"
+      hx-swap="outerHTML"
+      class="bg-yellow-500 text-white hover:bg-yellow-700 px-2 py-1 rounded"
+    >
+      Edit
+    </button>
+    <button
+      hx-delete="/{{ username }}/dashboard/slots/delete/{{ slot.id }}"
+      hx-target="#slot-{{ slot.id }}"
+      hx-swap="outerHTML"
+      class="bg-red-500 text-white hover:bg-red-700 px-2 py-1 rounded"
+    >
+      Delete
+    </button>
+  </div> -->
+</div>

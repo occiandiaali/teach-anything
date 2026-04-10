@@ -15,14 +15,25 @@
       rel="stylesheet"
     />
     <style>
-      .flash .error {
+      .flash.error {
         color: red;
       }
-      .flash .success {
+      .flash.success {
         color: green;
       }
-      .flash .info {
+      .flash.info {
         color: teal;
+      }
+      .flashes {
+        position: fixed; /* or absolute, depending on your layout */
+        top: 20px; /* adjust as needed */
+        right: 20px; /* adjust as needed */
+        background-color: #f8d7da; /* example background color */
+        color: #302f2f; /* example text color */
+        padding: 15px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        z-index: 1000; /* ensure it appears above other content */
       }
     </style>
   </head>
@@ -30,7 +41,7 @@
     <!--class="bg-gray-100 flex items-center justify-center h-screen"-->
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %}
-    <ul class="flash-messages">
+    <ul class="flashes">
       {% for category, message in messages %}
       <li class="flash {{ category }}">{{ message }}</li>
       {% endfor %}
@@ -91,8 +102,8 @@
         >
           Get started for free</button
         ><br />
-        <span class="htmx-indicator ml-2 text-sm text-green-700"
-          >⏳ Generating...</span
+        <span class="htmx-indicator ml-2 text-sm text-orange-800"
+          >⏳ Generating links...</span
         >
       </form>
 

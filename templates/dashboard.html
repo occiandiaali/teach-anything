@@ -14,10 +14,10 @@
     <div class="max-w-4xl mx-auto bg-white shadow rounded p-6">
       <!-- 1. Account Info -->
       <h1
-        class="text-lg text-green-600 font-bold mb-2"
+        class="text-lg text-green-600 mb-2"
         style="font-family: Arial, Helvetica, sans-serif"
       >
-        Welcome, {{ user.username }}
+        Welcome, <strong class="font-bold">{{ user.username }}</strong>
       </h1>
       <p class="text-gray-500">{{ user.bio }}</p>
       <!-- <a href="/logout" class="text-blue-600 underline">Logout</a> |
@@ -152,21 +152,26 @@
       <ul class="divide-y">
         {% for slot in slots %}
         <li class="py-2 flex justify-between items-center">
-          <span id="slot-{{ slot.id }}">
-            {{ slot.course_name }} — {{ slot.slot|format_datetime }} -
-            {{slot.course_duration}} mins
-          </span>
+          <div id="slot-{{ slot.id }}">
+            <!-- {{ slot.course_name }} — {{ slot.slot|format_datetime }} -
+            {{slot.course_duration}} mins -->
+            <h3 class="text-lg font-semibold">{{ slot.course_name }}</h3>
+            <p class="text-gray-600">Time: {{ slot.slot|format_datetime }}</p>
+            <p class="text-gray-400 text-sm">
+              Duration: {{ slot.course_duration }} minutes
+            </p>
+          </div>
 
           <div class="space-x-2">
             <!-- Edit button -->
-            <!-- <button
+            <button
               hx-get="/{{user.username}}/dashboard/slots/edit/{{ slot.id }}"
               hx-target="#slot-{{ slot.id }}"
               hx-swap="outerHTML"
-              class="bg-yellow-500 text-white px-2 py-1 rounded"
+              class="bg-yellow-500 text-white hover:bg-yellow-700 px-2 py-1 rounded"
             >
               Edit
-            </button> -->
+            </button>
 
             <!-- Delete button -->
             <form
