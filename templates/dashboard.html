@@ -74,7 +74,7 @@
       <!-- 2. Manage Classes -->
       <h2 class="text-2xl font-semibold mt-6">Manage Classes</h2>
       <form
-        action="/{{user.username}}/dashboard/slots/add"
+        action="/{{user.username}}/dashboard/courses/add"
         method="POST"
         class="mt-2 space-y-2"
       >
@@ -132,13 +132,14 @@
         <!-- Button to add more slots -->
         <button
           type="button"
-          hx-get="/{{user.username}}/dashboard/slots/new_input"
+          hx-get="/{{ user.username }}/dashboard/slots/new_input"
           hx-target="#slots-container"
           hx-swap="beforeend"
-          class="bg-gray-500 text-white px-4 py-2 rounded"
+          class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
         >
-          + Add Slot
+          + New Slot
         </button>
+
         <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
           Save Course & Slots</button
         ><br />
@@ -148,13 +149,12 @@
       </form>
 
       <!-- 3. List of Created Classes -->
-      <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
+      <!-- <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
       <ul class="divide-y">
         {% for slot in slots %}
         <li class="py-2 flex justify-between items-center">
           <div id="slot-{{ slot.id }}">
-            <!-- {{ slot.course_name }} — {{ slot.slot|format_datetime }} -
-            {{slot.course_duration}} mins -->
+        
             <h3 class="text-lg font-semibold">{{ slot.course_name }}</h3>
             <p class="text-gray-600">Time: {{ slot.slot|format_datetime }}</p>
             <p class="text-gray-400 text-sm">
@@ -163,7 +163,7 @@
           </div>
 
           <div class="space-x-2">
-            <!-- Edit button -->
+            
             <button
               hx-get="/{{user.username}}/dashboard/slots/edit/{{ slot.id }}"
               hx-target="#slot-{{ slot.id }}"
@@ -173,7 +173,7 @@
               Edit
             </button>
 
-            <!-- Delete button -->
+           
             <form
               action="/{{user.username}}/dashboard/slots/delete/{{ slot.id }}"
               method="POST"
@@ -189,7 +189,13 @@
           </div>
         </li>
         {% endfor %}
-      </ul>
+      </ul> -->
+      <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
+      <div class="divide-y">
+        {% for course in courses %} {% set slots_for_course =
+        course_slots.get(course.id, []) %} {% include
+        "partials/course_view.html" with context %} {% endfor %}
+      </div>
 
       <!-- 4. Upcoming Booked Classes -->
       <h2 class="text-2xl font-semibold mt-6">Upcoming Bookings</h2>
@@ -210,6 +216,7 @@
         </li>
         {% endfor %}
       </ul>
+
       <!-- <a href="/confirm_delete" style="color: red">Delete Account</a><br /> -->
 
       <div id="modal-container"></div>

@@ -1,0 +1,43 @@
+<div id="course-{{ course.id }}" class="border p-3 rounded shadow-sm">
+  <h3 class="text-lg font-semibold">{{ course.course_name }}</h3>
+  <p>Duration: {{ course.course_duration }} mins</p>
+  <p>Price: ${{ course.course_price }}</p>
+  <p>{{ course.course_description }}</p>
+
+  <h4 class="mt-2 font-medium">Slots:</h4>
+  <ul>
+    {% for slot in slots_for_course %}
+    <li id="slot-{{ slot.id }}">
+      {{ slot.slot|format_datetime }}
+      <button
+        hx-delete="/{{ username }}/dashboard/slots/delete/{{ slot.id }}"
+        hx-target="#slot-{{ slot.id }}"
+        hx-swap="outerHTML"
+        class="bg-red-500 text-white hover:bg-red-800 px-2 py-1 m-2 rounded ml-2"
+      >
+        Delete
+      </button>
+    </li>
+    {% else %}
+    <li class="text-gray-400">No slots yet</li>
+    {% endfor %}
+  </ul>
+
+  <button
+    hx-get="/{{ username }}/dashboard/slots/add_form/{{ course.id }}"
+    hx-target="#course-{{ course.id }}"
+    hx-swap="outerHTML"
+    class="bg-blue-400 text-white px-2 py-1 rounded mt-2"
+  >
+    Add Slot
+  </button>
+
+  <button
+    hx-delete="/{{ username }}/dashboard/courses/delete/{{ course.id }}"
+    hx-target="#course-{{ course.id }}"
+    hx-swap="outerHTML"
+    class="bg-red-600 text-white px-2 py-1 rounded mt-2"
+  >
+    Delete Course
+  </button>
+</div>

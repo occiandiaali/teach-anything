@@ -1,0 +1,43 @@
+<div id="course-{{ course.id }}">
+  <form
+    hx-post="/{{ username }}/dashboard/slots/add/{{ course.id }}"
+    hx-target="#course-{{ course.id }}"
+    hx-swap="outerHTML"
+    class="space-y-2"
+  >
+    <label for="slot">New Slot Date/Time:</label>
+    <input
+      type="datetime-local"
+      name="slots[]"
+      required
+      class="border p-2 rounded w-full"
+    />
+
+    <button
+      type="button"
+      hx-get="/{{ username }}/dashboard/slots/new_input"
+      hx-target="#slots-container"
+      hx-swap="beforeend"
+      class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
+    >
+      + Add Another Slot
+    </button>
+
+    <button
+      type="submit"
+      class="bg-green-500 text-white px-4 py-2 rounded mt-2"
+    >
+      Save Slots
+    </button>
+
+    <button
+      type="button"
+      hx-get="/{{ username }}/dashboard/courses/view/{{ course.id }}"
+      hx-target="#course-{{ course.id }}"
+      hx-swap="outerHTML"
+      class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
+    >
+      Cancel
+    </button>
+  </form>
+</div>

@@ -417,53 +417,134 @@ def payment_callback(booking_id):
         return "Payment failed or not verified.", 400
 #=======================================================Payments end
 
-@app.route("/<username>/dashboard/slots/add", methods=["POST"])
+@app.route("/<username>/dashboard/courses/add", methods=["POST"])
 @login_required
-def add_slot(username):
+def add_course(username):
     user_client = get_user_client()
-    print(f"Session user_id: {session.get('user_id')}")
-    if not user_client:
-        #flash("You must be logged in to add a slot", "error")
-        flash("Session expired. Please log in again.", "error")
-        return redirect(url_for("login"))
-    
-    # Verify the logged-in trainer matches the username in the URL
     profile = user_client.table("teacher_profiles").select("id").eq("username", username).execute()
     if not profile.data or session["user_id"] != profile.data[0]["id"]:
         flash("Unauthorized access.", "error")
         return redirect(url_for("login"))
-    
-    course_name = request.form.get("course_name")
-    course_duration = request.form.get("course_duration")
-    course_price = request.form.get("course_price")
-    course_description = request.form.get("course_description")
-    course_requirements = request.form.get("course_requirements")
-    slots = request.form.getlist("slots[]")  # ISO datetime string values
 
-    inserts = [
-        {
-            "trainer_id": session["user_id"],
-            "course_name": course_name,
-            "course_duration": course_duration,
-            "course_price": course_price,
-            "course_description": course_description,
-            "course_requirements": course_requirements,
-            "slot": slot
-        }
-        for slot in slots if slot
-    ]
+    course_data = {
+        "trainer_id": session["user_id"],
+        "course_name": request.form["course_name"],
+        "course_duration": request.form["course_duration"],
+        "course_price": request.form["course_price"],
+        "course_description": request.form["course_description"],
+        "course_requirements": request.form["course_requirements"],
+    }
 
-    try:
-        if inserts:
-            user_client.table("available_slots").insert(inserts).execute()
-            flash(f"{len(inserts)} slots added successfully", "success")
-        else:
-            flash("No slots provided", "warning")
-    except Exception as e:
-        app.logger.error(f"Slot insert failed: {e}")
-        flash("Could not add slots. Please try again.", "error")
+    course = user_client.table("courses").insert(course_data).execute().data[0]
 
+    slots = request.form.getlist("slots[]")
+    inserts = [{"course_id": course["id"], "slot": s} for s in slots if s]
+    if inserts:
+        user_client.table("course_slots").insert(inserts).execute()
+
+    flash("Course created successfully", "success")
     return redirect(url_for("dashboard", username=username))
+
+# =========Add slots to existing courses==============
+@app.route("/<username>/dashboard/slots/add/<course_id>", methods=["POST"])
+@login_required
+def add_slot(username, course_id):
+    user_client = get_user_client()
+    slots = request.form.getlist("slots[]")
+    inserts = [{"course_id": course_id, "slot": s} for s in slots if s]
+    if inserts:
+        user_client.table("course_slots").insert(inserts).execute()
+        flash(f"{len(inserts)} slots added", "success")
+    return redirect(url_for("dashboard", username=username))
+
+@app.route("/<username>/dashboard/slots/add_form/<course_id>", methods=["GET"])
+@login_required
+def add_slot_form(username, course_id):
+    client = get_user_client()
+    if not client:
+        flash("Session expired. Please log in again.", "error")
+        return redirect(url_for("login"))
+
+    # Verify trainer
+    profile = client.table("teacher_profiles").select("id").eq("username", username).execute()
+    if not profile.data or session["user_id"] != profile.data[0]["id"]:
+        return "Unauthorized", 403
+
+    course = client.table("courses").select("*").eq("id", course_id).execute().data
+    if not course:
+        return "Course not found", 404
+
+    return render_template("partials/add_slot_form.html", course=course[0], username=username)
+
+
+#==========Delete and auto-delete slots==============
+@app.route("/<username>/dashboard/slots/delete/<slot_id>", methods=["DELETE"])
+@login_required
+def delete_slot(username, slot_id):
+    user_client = get_user_client()
+    slot = user_client.table("course_slots").select("*").eq("id", slot_id).execute().data
+    if not slot:
+        return "Slot not found", 404
+    course_id = slot[0]["course_id"]
+
+    user_client.table("course_slots").delete().eq("id", slot_id).execute()
+
+    # Auto-delete course if no slots remain
+    remaining = user_client.table("course_slots").select("id").eq("course_id", course_id).execute().data
+    if not remaining:
+        user_client.table("courses").delete().eq("id", course_id).execute()
+        flash("Course deleted (no slots left)", "info")
+
+    return "", 204
+
+
+# @app.route("/<username>/dashboard/slots/add", methods=["POST"])
+# @login_required
+# def add_slot(username):
+#     user_client = get_user_client()
+#     print(f"Session user_id: {session.get('user_id')}")
+#     if not user_client:
+#         #flash("You must be logged in to add a slot", "error")
+#         flash("Session expired. Please log in again.", "error")
+#         return redirect(url_for("login"))
+    
+#     # Verify the logged-in trainer matches the username in the URL
+#     profile = user_client.table("teacher_profiles").select("id").eq("username", username).execute()
+#     if not profile.data or session["user_id"] != profile.data[0]["id"]:
+#         flash("Unauthorized access.", "error")
+#         return redirect(url_for("login"))
+    
+#     course_name = request.form.get("course_name")
+#     course_duration = request.form.get("course_duration")
+#     course_price = request.form.get("course_price")
+#     course_description = request.form.get("course_description")
+#     course_requirements = request.form.get("course_requirements")
+#     slots = request.form.getlist("slots[]")  # ISO datetime string values
+
+#     inserts = [
+#         {
+#             "trainer_id": session["user_id"],
+#             "course_name": course_name,
+#             "course_duration": course_duration,
+#             "course_price": course_price,
+#             "course_description": course_description,
+#             "course_requirements": course_requirements,
+#             "slot": slot
+#         }
+#         for slot in slots if slot
+#     ]
+
+#     try:
+#         if inserts:
+#             user_client.table("available_slots").insert(inserts).execute()
+#             flash(f"{len(inserts)} slots added successfully", "success")
+#         else:
+#             flash("No slots provided", "warning")
+#     except Exception as e:
+#         app.logger.error(f"Slot insert failed: {e}")
+#         flash("Could not add slots. Please try again.", "error")
+
+#     return redirect(url_for("dashboard", username=username))
 
 
 @app.route("/<username>/dashboard/slots/new_input")
@@ -521,20 +602,20 @@ def new_slot_input(username):
 #     </form>
 #     """
 
-@app.route("/<username>/dashboard/slots/edit/<slot_id>", methods=["GET"])
-@login_required
-def edit_slot(username, slot_id):
-    slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
-    if not slot.data:
-        return "Slot not found", 404
-    slot = slot.data[0]
+# @app.route("/<username>/dashboard/slots/edit/<slot_id>", methods=["GET"])
+# @login_required
+# def edit_slot(username, slot_id):
+#     slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
+#     if not slot.data:
+#         return "Slot not found", 404
+#     slot = slot.data[0]
 
-    # Verify ownership
-    if session["user_id"] != slot["trainer_id"]:
-        return "Unauthorized", 403
+#     # Verify ownership
+#     if session["user_id"] != slot["trainer_id"]:
+#         return "Unauthorized", 403
 
-    # Render a partial template (just the form for this slot)
-    return render_template("partials/edit_slot_form.html", slot=slot, username=username)
+#     # Render a partial template (just the form for this slot)
+#     return render_template("partials/edit_slot_form.html", slot=slot, username=username)
 
 
 # @app.route("/<username>/dashboard/slots/view/<slot_id>", methods=["GET"])
@@ -582,40 +663,40 @@ def edit_slot(username, slot_id):
 
 #     return f"<span id='slot-{slot_id}'>{course_name} — {slot_time} - {course_duration} </span>"
 
-@app.route("/<username>/dashboard/slots/update/<slot_id>", methods=["POST"])
-@login_required
-def update_slot(username, slot_id):
-    slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
-    if not slot.data:
-        return "Slot not found", 404
-    slot = slot.data[0]
+# @app.route("/<username>/dashboard/slots/update/<slot_id>", methods=["POST"])
+# @login_required
+# def update_slot(username, slot_id):
+#     slot = supabase.table("available_slots").select("*").eq("id", slot_id).execute()
+#     if not slot.data:
+#         return "Slot not found", 404
+#     slot = slot.data[0]
 
-    if session["user_id"] != slot["trainer_id"]:
-        return "Unauthorized", 403
+#     if session["user_id"] != slot["trainer_id"]:
+#         return "Unauthorized", 403
 
-    # Update slot with form data
-    updated = supabase.table("available_slots").update({
-        "course_name": request.form["course_name"],
-        "course_duration": request.form["course_duration"],
-        "course_price": request.form["course_price"],
-        "course_description":request.form["course_description"],
-        "course_requirements":request.form["course_requirements"],
-        "slot": request.form["slot"]
-    }).eq("id", slot_id).execute()
+#     # Update slot with form data
+#     updated = supabase.table("available_slots").update({
+#         "course_name": request.form["course_name"],
+#         "course_duration": request.form["course_duration"],
+#         "course_price": request.form["course_price"],
+#         "course_description":request.form["course_description"],
+#         "course_requirements":request.form["course_requirements"],
+#         "slot": request.form["slot"]
+#     }).eq("id", slot_id).execute()
 
-    slot = updated.data[0]
-    # Render back the "view" partial (non-edit mode)
-    return render_template("partials/slot_view.html", slot=slot, username=username)
+#     slot = updated.data[0]
+#     # Render back the "view" partial (non-edit mode)
+#     return render_template("partials/slot_view.html", slot=slot, username=username)
 
 
 
-@app.route("/<username>/dashboard/slots/delete/<slot_id>", methods=["POST"])
-@login_required
-def delete_slot(username, slot_id):
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-    supabase.table("available_slots").delete().eq("id", slot_id).execute()
-    return redirect(url_for("dashboard", username=username))
+# @app.route("/<username>/dashboard/slots/delete/<slot_id>", methods=["POST"])
+# @login_required
+# def delete_slot(username, slot_id):
+#     if "user_id" not in session:
+#         return redirect(url_for("login"))
+#     supabase.table("available_slots").delete().eq("id", slot_id).execute()
+#     return redirect(url_for("dashboard", username=username))
 
 # @app.route("/<username>")
 # def teacher_page(username):
@@ -634,6 +715,25 @@ def teacher_page(username):
     slots = supabase.table("available_slots").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
     return render_template("trainer.html", profile=profile.data[0], slots=slots.data)
 
+# @app.route("/<username>/dashboard")
+# @login_required
+# def dashboard(username):
+#     client = get_user_client()
+#     if not client:
+#         flash("Session expired. Please log in again.", "error")
+#         return redirect(url_for("login"))
+
+#     profile = client.table("teacher_profiles").select("*").eq("username", username).execute()
+#     if not profile.data:
+#         return "Trainer not found", 404
+
+#     if session.get("user_id") != profile.data[0]["id"]:
+#         flash("Unauthorized access to another trainer's dashboard.", "error")
+#         return redirect(url_for("login"))
+
+#     slots = client.table("available_slots").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
+#     bookings = client.table("teacher_bookings").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
+#     return render_template("dashboard.html", user=profile.data[0], slots=slots.data, bookings=bookings.data)
 @app.route("/<username>/dashboard")
 @login_required
 def dashboard(username):
@@ -642,6 +742,7 @@ def dashboard(username):
         flash("Session expired. Please log in again.", "error")
         return redirect(url_for("login"))
 
+    # Verify trainer profile
     profile = client.table("teacher_profiles").select("*").eq("username", username).execute()
     if not profile.data:
         return "Trainer not found", 404
@@ -650,9 +751,35 @@ def dashboard(username):
         flash("Unauthorized access to another trainer's dashboard.", "error")
         return redirect(url_for("login"))
 
-    slots = client.table("available_slots").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
-    bookings = client.table("teacher_bookings").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
-    return render_template("dashboard.html", user=profile.data[0], slots=slots.data, bookings=bookings.data)
+    trainer_id = profile.data[0]["id"]
+
+    # Fetch all courses for this trainer
+    courses = client.table("courses").select("*").eq("trainer_id", trainer_id).execute().data
+
+    # Fetch all slots for these courses
+    slots = client.table("course_slots").select("*").in_("course_id", [c["id"] for c in courses]).execute().data
+
+    # Organize slots by course_id for easy lookup in Jinja
+    course_slots = {}
+    for slot in slots:
+        course_slots.setdefault(slot["course_id"], []).append(slot)
+
+    # Fetch bookings as before
+    bookings = client.table("teacher_bookings").select("*").eq("trainer_id", trainer_id).execute().data
+
+    # course_bookings = {}
+    # for booking in bookings:
+    #     course_bookings.setdefault(booking["course_id"], []).append(booking)
+
+
+    return render_template(
+        "dashboard.html",
+        user=profile.data[0],
+        courses=courses,
+        course_slots=course_slots,
+        bookings=bookings
+    )
+
 
 @app.route("/<username>/dashboard/update_account", methods=["POST"])
 @login_required
