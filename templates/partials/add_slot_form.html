@@ -1,43 +1,47 @@
-<div id="course-{{ course.id }}">
-  <form
-    hx-post="/{{ username }}/dashboard/slots/add/{{ course.id }}"
-    hx-target="#course-{{ course.id }}"
-    hx-swap="outerHTML"
-    class="space-y-2"
+<div id="new-slot-container">
+  <div
+    class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50"
+    onclick="if (event.target === this) this.innerHTML = '';"
   >
-    <label for="slot">New Slot Date/Time:</label>
-    <input
-      type="datetime-local"
-      name="slots[]"
-      required
-      class="border p-2 rounded w-full"
-    />
+    <div class="bg-white p-6 rounded shadow-lg w-96">
+      <h3 class="text-lg font-semibold mb-4">Add New Slot</h3>
+      <form
+        hx-post="{{ url_for('add_slot', username=username, course_id=course.id) }}"
+        hx-target="#course-{{ course.id }}"
+        hx-swap="outerHTML"
+        class="space-y-2"
+      >
+        <input
+          type="datetime-local"
+          name="slots[]"
+          required
+          class="border p-2 rounded w-full"
+        />
 
-    <button
-      type="button"
-      hx-get="/{{ username }}/dashboard/slots/new_input"
-      hx-target="#slots-container"
-      hx-swap="beforeend"
-      class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
-    >
-      + Add Another Slot
-    </button>
-
-    <button
-      type="submit"
-      class="bg-green-500 text-white px-4 py-2 rounded mt-2"
-    >
-      Save Slots
-    </button>
-
-    <button
-      type="button"
-      hx-get="/{{ username }}/dashboard/courses/view/{{ course.id }}"
-      hx-target="#course-{{ course.id }}"
-      hx-swap="outerHTML"
-      class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
-    >
-      Cancel
-    </button>
-  </form>
+        <div class="flex space-x-2 mt-4">
+          <button
+            type="submit"
+            class="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Save
+            <span
+              id="spinner-{{ course.id }}"
+              class="htmx-indicator text-white ml-2 hidden"
+            >
+              ...⏳
+            </span>
+          </button>
+          <button
+            type="button"
+            hx-get="{{ url_for('view_course', username=username, course_id=course.id) }}"
+            hx-target="#new-slot-container"
+            hx-swap="innerHTML"
+            class="bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

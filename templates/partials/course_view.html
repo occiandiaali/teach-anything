@@ -4,40 +4,55 @@
   <p>Price: ${{ course.course_price }}</p>
   <p>{{ course.course_description }}</p>
 
-  <h4 class="mt-2 font-medium">Slots:</h4>
+  <h4 class="mt-2 font-medium">Availability:</h4>
   <ul>
     {% for slot in slots_for_course %}
-    <li id="slot-{{ slot.id }}">
+    <li id="slot-{{ slot.id }}" class="transition-colors duration-1000">
       {{ slot.slot|format_datetime }}
       <button
-        hx-delete="/{{ username }}/dashboard/slots/delete/{{ slot.id }}"
+        hx-delete="{{ url_for('delete_slot', username=username, slot_id=slot.id) }}"
         hx-target="#slot-{{ slot.id }}"
         hx-swap="outerHTML"
         class="bg-red-500 text-white hover:bg-red-800 px-2 py-1 m-2 rounded ml-2"
       >
         Delete
+        <span
+          id="spinner-{{ slot.id }}"
+          class="htmx-indicator text-yellow-600 ml-2 hidden"
+        >
+          ...⏳
+        </span>
       </button>
+      <!-- <button
+        hx-delete="{{ url_for('delete_slot', username=username, slot_id=slot.id) }}"
+        hx-target="#slot-{{ slot.id }}"
+        hx-swap="outerHTML"
+        hx-on="htmx:beforeRequest: this.innerText='Deleting...'; htmx:afterRequest: this.innerText='Delete';"
+        class="bg-red-500 text-white hover:bg-red-800 px-2 py-1 m-2 rounded ml-2"
+      >
+        Delete
+      </button> -->
     </li>
     {% else %}
     <li class="text-gray-400">No slots yet</li>
     {% endfor %}
   </ul>
 
-  <button
+  <!-- <button
     hx-get="/{{ username }}/dashboard/slots/add_form/{{ course.id }}"
     hx-target="#course-{{ course.id }}"
     hx-swap="outerHTML"
     class="bg-blue-400 text-white px-2 py-1 rounded mt-2"
   >
     Add Slot
-  </button>
+  </button> -->
 
   <button
-    hx-delete="/{{ username }}/dashboard/courses/delete/{{ course.id }}"
-    hx-target="#course-{{ course.id }}"
+    hx-get="{{ url_for('add_slot_form', username=username, course_id=course.id) }}"
+    hx-target="#new-slot-container"
     hx-swap="outerHTML"
-    class="bg-red-600 text-white px-2 py-1 rounded mt-2"
+    class="bg-black text-white hover:bg-gray-200 hover:text-black px-2 py-1 rounded mt-2"
   >
-    Delete Course
+    Add New Slot
   </button>
 </div>

@@ -9,6 +9,14 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <style>
+      .htmx-indicator {
+        display: none;
+      }
+      .htmx-request .htmx-indicator {
+        display: inline-block;
+      }
+    </style>
   </head>
   <body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto bg-white shadow rounded p-6">
@@ -112,7 +120,7 @@
           placeholder="Course Requirements"
           required
           class="border p-2 rounded w-full"
-        />
+        /><br />
         <!-- <input
           type="datetime-local"
           name="slot"
@@ -120,6 +128,7 @@
           class="border p-2 rounded w-full"
         /> -->
         <!-- Slots container -->
+        <label for="slots-container">Set Class Times ↓</label>
         <div id="slots-container" class="space-y-2">
           <input
             type="datetime-local"
@@ -132,20 +141,19 @@
         <!-- Button to add more slots -->
         <button
           type="button"
-          hx-get="/{{ user.username }}/dashboard/slots/new_input"
+          hx-get="{{ url_for('new_slot_input', username=user.username) }}"
           hx-target="#slots-container"
           hx-swap="beforeend"
           class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
         >
-          + New Slot
+          + Add
+          <span class="htmx-indicator ml-2 text-sm text-white">...⏳</span>
         </button>
 
         <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
-          Save Course & Slots</button
-        ><br />
-        <span class="htmx-indicator ml-2 text-sm text-blue-500"
-          >⏳ Adding...</span
-        >
+          Save Course
+          <span class="htmx-indicator ml-2 text-sm text-blue-500">⏳...</span>
+        </button>
       </form>
 
       <!-- 3. List of Created Classes -->
@@ -191,10 +199,14 @@
         {% endfor %}
       </ul> -->
       <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
+      <div
+        id="status-container"
+        class="text-sm bg-blue-200 text-blue-800 w-64 p-4 mt-2"
+      ></div>
       <div class="divide-y">
         {% for course in courses %} {% set slots_for_course =
         course_slots.get(course.id, []) %} {% include
-        "partials/course_view.html" with context %} {% endfor %}
+        "partials/course_view.html" with context %} {%endfor %}
       </div>
 
       <!-- 4. Upcoming Booked Classes -->
@@ -218,9 +230,49 @@
       </ul>
 
       <!-- <a href="/confirm_delete" style="color: red">Delete Account</a><br /> -->
-
       <div id="modal-container"></div>
       <div id="logout-container"></div>
+      <div id="new-slot-container"></div>
     </div>
+    <!---->
+    <script>
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        // If a course card was swapped, highlight the newest slot
+        if (evt.detail.target.id.startsWith("course-")) {
+          const slots = evt.detail.target.querySelectorAll("li[id^='slot-']");
+          if (slots.length > 0) {
+            const newest = slots[slots.length - 1]; // last slot added
+            newest.classList.add("bg-green-100"); // temporary highlight
+            setTimeout(() => {
+              newest.classList.remove("bg-green-100");
+            }, 2000); // fade out after 2s
+          }
+        }
+      });
+
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        if (evt.detail.target.id === "new-slot-container") {
+          const modal = evt.detail.target.querySelector("div");
+          if (!modal) return; // container was cleared
+          modal.style.transition = "opacity 0.5s ease";
+          modal.style.opacity = "0";
+          setTimeout(() => (evt.detail.target.innerHTML = ""), 500);
+        }
+      });
+
+      // Observe HTMX swaps and fade out messages after a delay
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        if (evt.detail.target.id === "status-container") {
+          const msg = evt.detail.target.querySelector("div");
+          if (msg) {
+            setTimeout(() => {
+              msg.style.transition = "opacity 1s ease";
+              msg.style.opacity = "0";
+              setTimeout(() => msg.remove(), 1000); // remove after fade
+            }, 3000); // wait 3 seconds before fading
+          }
+        }
+      });
+    </script>
   </body>
 </html>

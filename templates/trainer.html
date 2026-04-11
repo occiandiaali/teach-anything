@@ -6,10 +6,14 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+    </style>
   </head>
   <body class="bg-gray-100">
-    <!--class="bg-gray-100 flex items-center justify-center h-screen"-->
-    <nav>
+    <nav style="margin-bottom: 5%">
       <!-- <img
         style="position: absolute; top: 0; left: 3%"
         src="{{url_for('static', filename='/images/teachanything-logo.png')}}"
@@ -31,63 +35,30 @@
         TeachSomeone
       </h1>
     </nav>
-    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-      <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
-        <h1 class="text-2xl font-bold mb-4">
-          Learn with {{ profile.username }}
-        </h1>
-        <p>{{ profile.bio or "Learn with me, as I TeachAnything!" }}</p>
-      </div>
-      {% for slot in slots %}
-      <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
-        <h1 class="text-2xl font-bold mb-4">{{ slot.course_name }}</h1>
-        <p>{{slot.course_description}}</p>
-        <p>Duration: {{slot.course_duration}} minutes</p>
-        <p>Requirements: {{slot.course_requirements}}</p>
-        <p>₦{{slot.course_price}}</p>
-        <span>Slot: {{ slot.slot }}</span>
-
-        <form action="/book/{{ slot.id }}" method="POST">
-          <input
-            type="email"
-            name="learner_email"
-            placeholder="Enter your email to book.."
-            required
-            class="border p-2 m-2 rounded"
-          />
-          <button
-            type="submit"
-            class="bg-green-500 text-white px-4 py-2 m-4 rounded"
-          >
-            Book this training
-          </button>
-        </form>
-      </div>
-      {% endfor %}
-    </div> -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
-      <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
+      <div
+        class="bg-yellow-200 p-8 rounded shadow-md"
+        style="max-height: 200px"
+      >
         <h1 class="text-2xl font-bold mb-4">
           Learn with {{ profile.username }}
         </h1>
         <p>{{ profile.bio or "Learn with me, as I TeachSomeone!" }}</p>
       </div>
 
-      {% for course, course_slots in slots|groupby("course_name") %}
+      {% for course in courses %}
       <div class="bg-white p-8 rounded shadow-md w-80 md:w-96">
-        <h1 class="text-xl font-bold mb-4">{{ course }}</h1>
-        <p>{{ course_slots[0].course_description }}</p>
-        <p>
-          <strong>Session</strong>: {{ course_slots[0].course_duration }}
-          minutes
-        </p>
-        <p><strong>Pre</strong>: {{ course_slots[0].course_requirements }}</p>
-        <p><strong>Cost</strong>: ₦{{ course_slots[0].course_price }}</p>
+        <h1 class="text-xl font-bold mb-4">{{ course.course_name }}</h1>
+        <p>{{ course.course_description }}</p>
+        <p><strong>Session</strong>: {{ course.course_duration }} minutes</p>
+        <p><strong>Pre</strong>: {{ course.course_requirements }}</p>
+        <p><strong>Cost</strong>: ₦{{ course.course_price }}</p>
 
         <p><strong>Slots</strong>:</p>
-
+        {% set course_slots = slots_by_course.get(course.id, []) %} {% if
+        course_slots %}
         <form action="/book" method="POST">
-          <input type="hidden" name="course_name" value="{{ course }}" />
+          <input type="hidden" name="course_id" value="{{ course.id }}" />
           <div class="space-y-2">
             {% for slot in course_slots %}
             <label class="block">
@@ -104,18 +75,20 @@
           <input
             type="email"
             name="learner_email"
-            placeholder="Enter your email"
+            placeholder="Enter your email.."
             required
             class="border p-2 m-4 rounded"
           />
-
           <button
             type="submit"
             class="bg-green-500 text-white px-4 py-2 rounded"
           >
-            Book & Pay
+            Book this class
           </button>
         </form>
+        {% else %}
+        <p>No slots currently available.</p>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
