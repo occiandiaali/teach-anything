@@ -59,6 +59,7 @@
         course_slots %}
         <form action="/book" method="POST">
           <input type="hidden" name="course_id" value="{{ course.id }}" />
+          <input type="hidden" name="username" value="{{ profile.username }}" />
           <div class="space-y-2">
             {% for slot in course_slots %}
             <label class="block">
@@ -72,6 +73,7 @@
             </label>
             {% endfor %}
           </div>
+
           <input
             type="email"
             name="learner_email"
@@ -82,9 +84,13 @@
           <button
             type="submit"
             class="bg-green-500 text-white px-4 py-2 rounded"
+            onclick="showBooking()"
           >
             Book this class
           </button>
+        <span id="booking-indicator" text-green-600 ml-2 hidden">
+          Wait...⏳
+        </span>
         </form>
         {% else %}
         <p>No slots currently available.</p>
@@ -92,5 +98,38 @@
       </div>
       {% endfor %}
     </div>
+
+    <script>
+        function showBooking() {
+    document.getElementById("booking-indicator").classList.remove("hidden");
+  }
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div
+      id="notification-modal"
+      class="fixed top-5 right-5 px-4 py-2 rounded shadow-lg"
+      style="z-index: 50"
+    >
+      {% for category, message in messages %}
+      <p
+        class="{% if category == 'success' %}bg-green-500{% else %}bg-red-500{% endif %} text-white px-4 py-2 rounded"
+      >
+        {{ message }}
+      </p>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const modal = document.getElementById("notification-modal");
+        if (modal) {
+          modal.style.transition = "opacity 1s";
+          modal.style.opacity = 0;
+          setTimeout(() => modal.remove(), 1000);
+        }
+      }, 4000); // dismiss after 4 seconds
+    </script>
+    {% endif %} {% endwith %}
   </body>
 </html>

@@ -2,7 +2,7 @@ from flask import Flask, flash, render_template, request, redirect, url_for, ses
 from postgrest.exceptions import APIError
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 
 import os
 import uuid
@@ -125,7 +125,7 @@ def register_teacher():
     # public_link = url_for("teacher_page", username=username, _external=True)
     # dashboard_link = url_for("dashboard", user_id=user_id, _external=True)
 
-    public_link = f"{DOMAIN}/{username}"
+    public_link = f"{DOMAIN}/learn_with_{username}"
     dashboard_link = f"{DOMAIN}/{username}/dashboard"
 
 
@@ -162,7 +162,7 @@ def register_teacher():
         <a id="public-link" href="{public_link}" target="_blank" class="text-blue-600 underline">
         {public_link}
         </a>
-        <button onclick="navigator.clipboard.writeText({public_link})" 
+        <button onclick="navigator.clipboard.writeText('{public_link}')" 
                 class="text-gray-500 hover:text-gray-700 cursor-pointer">
         📋
         </button>
@@ -175,7 +175,7 @@ def register_teacher():
         <a id="dashboard-link" href="{dashboard_link }" target="_blank" class="text-green-600 underline">
         { dashboard_link }
         </a>
-        <button onclick="navigator.clipboard.writeText({dashboard_link})" 
+        <button onclick="navigator.clipboard.writeText('{dashboard_link}')" 
                 class="text-gray-500 hover:text-gray-700 cursor-pointer">
         📋
         </button>
@@ -306,26 +306,33 @@ def send_email(to, subject, body):
 
 
 
-@app.route("/book/<slot_id>", methods=["POST"])
-def book_slot(slot_id):
+@app.route("/book", methods=["POST"])
+def book_slot():
+    slot_id = request.form.get("selected_slot")
     learner_email = request.form.get("learner_email")
+    username = request.form.get("username")  # hidden field in form
 
     # Fetch slot
     slot = supabase.table("course_slots").select("*").eq("id", slot_id).execute()
     if not slot.data:
-        return "Slot not found", 404
+        flash("Slot not found", "error")
+        return redirect(url_for("teacher_page", username=username))
+    
     slot_data = slot.data[0]
 
     # Fetch course
     course = supabase.table("courses").select("*").eq("id", slot_data["course_id"]).execute()
     if not course.data:
-        return "Course not found", 404
+        flash("Course not found", "error")
+        return redirect(url_for("teacher_page", username=username))
+    
     course_data = course.data[0]
 
     # Validate slot time
     slot_time = parse_slot(slot_data["slot"])
-    if slot_time < datetime.utcnow():
-        return "This slot has expired", 400
+    if slot_time < datetime.now(timezone.utc):
+        flash("This slot has expired", "error")
+        return redirect(url_for("teacher_page", username=username))
 
     # Generate meeting link
     room_name = f"class-{uuid.uuid4()}"
@@ -342,8 +349,19 @@ def book_slot(slot_id):
         "status": "pending"
     }).execute()
 
+    booking_data = booking.data[0]
+
     # Redirect to payment gateway (placeholder)
-    return redirect(url_for("initiate_payment", booking_id=booking.data[0]["id"]))
+    #return redirect(url_for("initiate_payment", booking_id=booking.data[0]["id"]))
+    print(f"Booking: {booking_data}")
+    flash(f"Booking successful! You booked {course_data['course_name']} at {slot_time.strftime('%A %d %B %Y, %H:%M')}", "success")
+    return redirect(url_for("teacher_page", username=username))
+        # Render a confirmation page
+    # return render_template("booking_confirmation.html",
+    #                        course=course_data,
+    #                        slot=slot_data,
+    #                        learner_email=learner_email,
+    #                        meet_url=booking_data["meet_url"])
 
 
 # =================Payments Flow==========
@@ -431,16 +449,7 @@ def add_course(username):
     return redirect(url_for("dashboard", username=username))
 
 # =========Add slots to existing courses==============
-# @app.route("/<username>/dashboard/slots/add/<course_id>", methods=["POST"])
-# @login_required
-# def add_slot(username, course_id):
-#     user_client = get_user_client()
-#     slots = request.form.getlist("slots[]")
-#     inserts = [{"course_id": course_id, "slot": s} for s in slots if s]
-#     if inserts:
-#         user_client.table("course_slots").insert(inserts).execute()
-#         flash(f"{len(inserts)} slots added", "success")
-#     return redirect(url_for("dashboard", username=username))
+
 @app.route("/<username>/dashboard/slots/add/<course_id>", methods=["POST"])
 @login_required
 def add_slot(username, course_id):
@@ -568,7 +577,7 @@ def new_slot_input(username):
     return '<input type="datetime-local" name="slots[]" class="border p-2 rounded w-full" />'
 
 
-@app.route("/<username>")
+@app.route("/learn_with_<username>")
 def teacher_page(username):
     # public learner page
     profile = supabase.table("teacher_profiles").select("*").eq("username", username).execute()
@@ -630,6 +639,9 @@ def dashboard(username):
     # Fetch all courses for this trainer
     courses = client.table("courses").select("*").eq("trainer_id", trainer_id).execute().data
 
+        # Build a lookup dict for course names
+    course_lookup = {c["id"]: c["course_name"] for c in courses}
+
     # Fetch all slots for these courses
     slots = client.table("course_slots").select("*").in_("course_id", [c["id"] for c in courses]).execute().data
 
@@ -638,13 +650,12 @@ def dashboard(username):
     for slot in slots:
         course_slots.setdefault(slot["course_id"], []).append(slot)
 
-    # Fetch bookings as before
+    # Fetch bookings
     bookings = client.table("teacher_bookings").select("*").eq("trainer_id", trainer_id).execute().data
 
-    # course_bookings = {}
-    # for booking in bookings:
-    #     course_bookings.setdefault(booking["course_id"], []).append(booking)
-
+        # Attach course_name to each booking
+    for booking in bookings:
+        booking["course_name"] = course_lookup.get(booking["course_id"], "Unknown Course")
 
     return render_template(
         "dashboard.html",

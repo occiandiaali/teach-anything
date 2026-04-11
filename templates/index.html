@@ -38,16 +38,8 @@
     </style>
   </head>
   <body class="bg-gray-100 h-screen">
-    <!--class="bg-gray-100 flex items-center justify-center h-screen"-->
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %}
-    <ul class="flashes">
-      {% for category, message in messages %}
-      <li class="flash {{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %} {% include 'hero.html' %} {% include
-    'features.html' %} {% include 'onboarding.html' %}
+    {% include 'hero.html' %} {% include 'features.html' %} {% include
+    'onboarding.html' %}
 
     <h2
       class="p-6 text-base text-center font-semibold leading-7 text-green-600"

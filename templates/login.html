@@ -30,13 +30,19 @@
           class="w-full border p-2 rounded"
           required
         />
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
-          Login</button
-        ><br />
-        <span class="htmx-indicator ml-2 text-sm text-green-800"
-          >⏳ Wait...</span
-        >
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded" onclick="showIndicator()">
+          Login
+        </button>
+        <span id="login-indicator" text-green-600 ml-2 hidden">
+          Wait...⏳
+        </span>
       </form>
     </div>
+
+<script>
+  function showIndicator() {
+    document.getElementById("login-indicator").classList.remove("hidden");
+  }
+</script>
   </body>
 </html>
