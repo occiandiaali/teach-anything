@@ -3,12 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>TeachAnything | Dashboard Login</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <style>
+            body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #329424;
+        background: linear-gradient(0deg, #329424, #b7d6b7);
+        height: 90vh;
+        object-fit: fill;
+      }
+      #login-indicator {
+        display: none;
+      }
+    </style>
   </head>
   <body class="bg-gray-100 flex items-center justify-center">
     <div
@@ -41,7 +53,8 @@
 
 <script>
   function showIndicator() {
-    document.getElementById("login-indicator").classList.remove("hidden");
+   // document.getElementById("login-indicator").classList.remove("hidden");
+    document.getElementById("login-indicator").style.display = "block";
   }
 </script>
   </body>

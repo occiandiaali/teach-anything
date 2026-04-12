@@ -1,10 +1,13 @@
 <div id="course-{{ course.id }}" class="border p-3 rounded shadow-sm">
   <h3 class="text-lg font-semibold">{{ course.course_name }}</h3>
-  <p>Duration: {{ course.course_duration }} mins</p>
-  <p>Price: ${{ course.course_price }}</p>
   <p>{{ course.course_description }}</p>
+  <p>
+    <span class="text-gray-500">Duration</span>: {{ course.course_duration }}
+    minutes
+  </p>
+  <p><span class="text-gray-500">Price</span>: ${{ course.course_price }}</p>
 
-  <h4 class="mt-2 font-medium">Availability:</h4>
+  <h4 class="mt-2 font-medium text-gray-500">Slots:</h4>
   <ul>
     {% for slot in slots_for_course %}
     <li id="slot-{{ slot.id }}" class="transition-colors duration-1000">
@@ -15,7 +18,7 @@
         hx-swap="outerHTML"
         class="bg-red-500 text-white hover:bg-red-800 px-2 py-1 m-2 rounded ml-2"
       >
-        Delete
+        Remove
         <span
           id="spinner-{{ slot.id }}"
           class="htmx-indicator text-yellow-600 ml-2 hidden"

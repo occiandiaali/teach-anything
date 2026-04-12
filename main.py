@@ -27,16 +27,6 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Admin client (service role key)
 supabase_admin: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-# # Future use?
-# # Suppose slot["slot"] is an ISO string
-# slot_time = datetime.fromisoformat(slot["slot"].replace("Z", "+00:00"))
-
-# # Now you can do calculations
-# if slot_time < datetime.utcnow():
-#     status = "Expired"
-# else:
-#     status = "Upcoming"
-
 # pip install sendgrid
 # from sendgrid import SendGridAPIClient
 # from sendgrid.helpers.mail import Mail
@@ -298,13 +288,7 @@ def logout(username):
         # Normal browser request → redirect
         flash("You have been logged out.", "success")
         return redirect(url_for("login"))
-
-
-def send_email(to, subject, body):
-    # integrate with mail provider here
-    pass
-
-
+    
 
 @app.route("/book", methods=["POST"])
 def book_slot():
@@ -349,19 +333,13 @@ def book_slot():
         "status": "pending"
     }).execute()
 
-    booking_data = booking.data[0]
+    #booking_data = booking.data[0]
 
     # Redirect to payment gateway (placeholder)
     #return redirect(url_for("initiate_payment", booking_id=booking.data[0]["id"]))
-    print(f"Booking: {booking_data}")
+    #print(f"Booking: {booking_data}")
     flash(f"Booking successful! You booked {course_data['course_name']} at {slot_time.strftime('%A %d %B %Y, %H:%M')}", "success")
     return redirect(url_for("teacher_page", username=username))
-        # Render a confirmation page
-    # return render_template("booking_confirmation.html",
-    #                        course=course_data,
-    #                        slot=slot_data,
-    #                        learner_email=learner_email,
-    #                        meet_url=booking_data["meet_url"])
 
 
 # =================Payments Flow==========
@@ -412,7 +390,7 @@ def payment_callback(booking_id):
         supabase.table("teacher_bookings").update({"status": "confirmed"}).eq("id", booking_id).execute()
 
         booking = supabase.table("teacher_bookings").select("*").eq("id", booking_id).execute().data[0]
-        send_email(booking["learner_email"], "Booking Confirmed", f"Your class is confirmed! Join here: {booking['meet_url']}")
+        #send_email(booking["learner_email"], "Booking Confirmed", f"Your class is confirmed! Join here: {booking['meet_url']}")
         # Teacher email logic as before
 
         return "Payment successful! Your booking is confirmed."
@@ -515,7 +493,6 @@ def view_course(username, course_id):
     )
 
 
-
 #==========Delete and auto-delete slots==============
 @app.route("/<username>/dashboard/slots/delete/<slot_id>", methods=["DELETE"])
 @login_required
@@ -530,17 +507,7 @@ def delete_slot(username, slot_id):
     
         # Auto-delete course if no slots remain
     remaining = user_client.table("course_slots").select("id").eq("course_id", course_id).execute().data
-    # if not remaining:
-    #     user_client.table("courses").delete().eq("id", course_id).execute()
-    #     message = "Course deleted (no slots left)"
-    # else:
-    #     message = "Slot deleted successfully"
 
-    # #return "", 204
-    # # Returns a fragment that HTMX can inject into the status container
-    # return f"""
-    # <div hx-swap-oob="innerHTML:#status-container">{message}</div>
-    # """, 200
     if not remaining:
         user_client.table("courses").delete().eq("id", course_id).execute()
         message = "Course deleted (no slots left)"
@@ -603,18 +570,6 @@ def teacher_page(username):
         courses=courses,
         slots_by_course=slots_by_course
     )
-
-
-
-# @app.route("/<username>")
-# def teacher_page(username):
-#     # public learner page
-#     profile = supabase.table("teacher_profiles").select("*").eq("username", username).execute()
-#     if not profile.data:
-#         return "Trainer not found", 404
-#     slots = supabase.table("course_slots").select("*").eq("trainer_id", profile.data[0]["id"]).execute()
-
-#     return render_template("trainer.html", profile=profile.data[0], slots=slots.data)
 
 
 @app.route("/<username>/dashboard")
@@ -707,33 +662,6 @@ def update_account(username):
     return redirect(url_for("dashboard", username=username))
 
 
-# @app.route("/delete_account", methods=["POST"])
-# def delete_account():
-#     if "user_id" not in session:
-#         flash("You must be logged in to delete your account.", "error")
-#         return redirect(url_for("login"))
-
-#     user_id = session["user_id"]
-
-#     # Delete their own profile row (allowed by RLS policy)
-#     supabase.table("teacher_profiles").delete().eq("id", user_id).execute()
-
-#     # Delete Auth user (requires service role key)
-#     print(f"<<<<<<<<<<<Auth admin about to fire>>>>>>>>>>>>, {user_id}")
-#     supabase_admin.auth.admin.delete_user(user_id)
-#     print("Account deleted..")
-
-
-#     # Delete their own auth account (no service role key needed for self-deletion)
-#     session.clear()
-
-#     # Flash success message
-#     flash("Your account has been deleted successfully.", "success")
-
-#    # return "<p class='text-green-600'>Your account has been deleted successfully.</p>"
-
-#     # Redirect back to 
-#     return redirect(url_for("landing_page"))
 @app.route("/<username>/dashboard/delete_account", methods=["POST"])
 @login_required
 def delete_account(username):
@@ -741,12 +669,6 @@ def delete_account(username):
     if not client:
         flash("Session expired. Please log in again.", "error")
         return redirect(url_for("login"))
-    
-    # # Verify that the logged-in trainer matches the username in the URL
-    # profile = client.table("teacher_profiles").select("id").eq("username", username).execute()
-    # if not profile.data or session["user_id"] != profile.data[0]["id"]:
-    #     flash("Unauthorized access.", "error")
-    #     return redirect(url_for("login"))
 
     profile = client.table("teacher_profiles").select("id").eq("username", username).execute()
 
@@ -816,16 +738,6 @@ def confirm_delete(username):
       </div>
     </div>
     """
-# User clicks Delete Account on the dashboard.
-
-# HTMX loads /confirm_delete into #modal-container.
-
-# Modal appears with Cancel and Delete buttons.
-
-# Clicking Delete submits to /delete_account.
-
-# Account is deleted, session cleared, and a success message is shown.
-
 
 if __name__ == "__main__":
     app.run(debug=True)

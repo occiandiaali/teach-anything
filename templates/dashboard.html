@@ -3,13 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TeachSomeone | Dashboard</title>
+    <title>TeachAnything | Dashboard</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
     <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #329424;
+        background: linear-gradient(0deg, #329424, #b7d6b7);
+
+        object-fit: cover;
+      }
       .htmx-indicator {
         display: none;
       }
@@ -19,7 +26,7 @@
     </style>
   </head>
   <body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto bg-white shadow rounded p-6">
+    <div class="max-w-4xl mx-auto bg-gray-200 shadow rounded p-6">
       <!-- 1. Account Info -->
       <h1
         class="text-lg text-green-600 mb-2"
@@ -54,7 +61,9 @@
 
       <h2 class="text-3xl font-semibold mt-6">Your Dashboard</h2>
 
-      <h2 class="text-2xl font-semibold mt-6">Edit Account Info</h2>
+      <h2 class="text-2xl text-gray-600 font-semibold mt-6">
+        Edit Account Info
+      </h2>
       <form
         action="/{{user.username}}/dashboard/update_account"
         method="POST"
@@ -75,13 +84,16 @@
         <textarea name="bio" class="border p-2 rounded w-full">
 {{ user.bio }}</textarea
         >
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          class="bg-blue-500 text-white hover:bg-blue-200 hover:text-blue-800 px-4 py-2 rounded"
+        >
           Update
         </button>
       </form>
 
       <!-- 2. Manage Classes -->
-      <h2 class="text-2xl font-semibold mt-6">Manage Classes</h2>
+      <h2 class="text-2xl text-gray-600 font-semibold mt-6">Manage Classes</h2>
       <form
         action="/{{user.username}}/dashboard/courses/add"
         method="POST"
@@ -129,8 +141,10 @@
           class="border p-2 rounded w-full"
         /> -->
         <!-- Slots container -->
-        <label for="slots-container">Set Class Times ↓</label>
         <div id="slots-container" class="space-y-2">
+          <label for="slots-container" class="text-gray-600"
+            >Set Time Slots ↓</label
+          >
           <input
             type="datetime-local"
             name="slots[]"
@@ -145,61 +159,22 @@
           hx-get="{{ url_for('new_slot_input', username=user.username) }}"
           hx-target="#slots-container"
           hx-swap="beforeend"
-          class="bg-gray-500 text-white px-4 py-2 rounded mt-2"
+          class="bg-gray-500 text-white hover:bg-gray-200 hover:text-gray-600 px-4 py-2 rounded mt-2"
         >
           + Add
           <span class="htmx-indicator ml-2 text-sm text-white">...⏳</span>
         </button>
 
-        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          class="bg-green-500 text-white hover:bg-green-100 hover:text-green-800 px-4 py-2 rounded"
+        >
           Save Course
-          <span class="htmx-indicator ml-2 text-sm text-blue-500">⏳...</span>
         </button>
+        <!-- <span class="htmx-indicator ml-2 text-sm text-blue-500">⏳...</span> -->
       </form>
 
-      <!-- 3. List of Created Classes -->
-      <!-- <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
-      <ul class="divide-y">
-        {% for slot in slots %}
-        <li class="py-2 flex justify-between items-center">
-          <div id="slot-{{ slot.id }}">
-        
-            <h3 class="text-lg font-semibold">{{ slot.course_name }}</h3>
-            <p class="text-gray-600">Time: {{ slot.slot|format_datetime }}</p>
-            <p class="text-gray-400 text-sm">
-              Duration: {{ slot.course_duration }} minutes
-            </p>
-          </div>
-
-          <div class="space-x-2">
-            
-            <button
-              hx-get="/{{user.username}}/dashboard/slots/edit/{{ slot.id }}"
-              hx-target="#slot-{{ slot.id }}"
-              hx-swap="outerHTML"
-              class="bg-yellow-500 text-white hover:bg-yellow-700 px-2 py-1 rounded"
-            >
-              Edit
-            </button>
-
-           
-            <form
-              action="/{{user.username}}/dashboard/slots/delete/{{ slot.id }}"
-              method="POST"
-              style="display: inline"
-            >
-              <button
-                type="submit"
-                class="bg-red-500 text-white px-2 py-1 rounded"
-              >
-                Delete
-              </button>
-            </form>
-          </div>
-        </li>
-        {% endfor %}
-      </ul> -->
-      <h2 class="text-2xl font-semibold mt-6">Your Classes</h2>
+      <h2 class="text-2xl text-gray-600 font-semibold mt-6">Your Classes</h2>
       <div
         id="status-container"
         class="text-sm bg-blue-200 text-blue-800 w-64 p-4 mt-2"
@@ -211,30 +186,68 @@
       </div>
 
       <!-- 4. Upcoming Booked Classes -->
-      <h2 class="text-2xl font-semibold mt-6">Upcoming Bookings</h2>
+      <h2 class="text-2xl text-gray-600 font-semibold mt-6">
+        Upcoming Bookings
+      </h2>
       <ul class="divide-y">
         {% for booking in bookings %}
         <li class="py-2">
           <strong>{{ booking.course_name }}</strong> — {{
           booking.scheduled_at|format_datetime }}
           <br />
-          Learner: {{ booking.learner_email }}
+          Learner:
+          <a
+            class="text-blue-800 underline"
+            href="mailto:{{booking.learner_email}}?subject=Hello%20there&body=This%20is%20a%20acknowledgement%20of%20your%20booking.Once%20your%20payment%20is%20confirmed,%20I%20will%20see%20you%20in%20class."
+            >{{ booking.learner_email }}</a
+          >
+          <br />
+          <span class="text-gray-600">Status: {{booking.status}}</span>
           <br />
           <a
             href="{{ booking.meet_url }}"
             target="_blank"
             class="text-blue-600 underline"
-            >Join Meeting</a
-          >
+            >Join Class</a
+          ><br />
+          <span class="text-xs text-gray-400">Powered by Jitsi Meet</span>
         </li>
         {% endfor %}
       </ul>
 
       <!-- <a href="/confirm_delete" style="color: red">Delete Account</a><br /> -->
-      <div id="modal-container"></div>
+      <!-- <div id="modal-container"></div> -->
       <div id="logout-container"></div>
       <div id="new-slot-container"></div>
     </div>
+
+    <!---->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div
+      id="dashboard-notification-modal"
+      class="fixed top-5 right-5 px-4 py-2 rounded shadow-lg"
+      style="z-index: 50"
+    >
+      {% for category, message in messages %}
+      <p
+        class="{% if category == 'success' %}bg-green-500{% else %}bg-red-500{% endif %} text-white px-4 py-2 rounded"
+      >
+        {{ message }}
+      </p>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const modal = document.getElementById("dashboard-notification-modal");
+        if (modal) {
+          modal.style.transition = "opacity 1s";
+          modal.style.opacity = 0;
+          setTimeout(() => modal.remove(), 1000);
+        }
+      }, 4000); // dismiss after 4 seconds
+    </script>
+    {% endif %} {% endwith %}
     <!---->
     <script>
       document.body.addEventListener("htmx:afterSwap", function (evt) {

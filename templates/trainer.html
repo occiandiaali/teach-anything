@@ -9,6 +9,13 @@
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
+        background: #329424;
+        background: linear-gradient(0deg, #329424, #b7d6b7);
+        height: 90vh;
+        object-fit: fill;
+      }
+      #booking-indicator {
+        display: none;
       }
     </style>
   </head>
@@ -28,11 +35,11 @@
           width: 200px;
           height: 38px;
           font-family: Arial, Helvetica, sans-serif;
-          text-shadow: 1px 1px 2px green;
+          text-shadow: 1px 1px 2px rgb(240, 223, 70);
         "
         class="font-bold text-lg md:text-xl"
       >
-        TeachSomeone
+        TeachAnything
       </h1>
     </nav>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
@@ -83,14 +90,13 @@
           />
           <button
             type="submit"
-            class="bg-green-500 text-white px-4 py-2 rounded"
-            onclick="showBooking()"
+            class="bg-green-500 text-white hover:bg-green-200 hover:text-green-600 px-4 py-2 rounded"
           >
             Book this class
           </button>
-        <span id="booking-indicator" text-green-600 ml-2 hidden">
+          <!-- <span id="booking-indicator" text-green-600 ml-2 hidden">
           Wait...⏳
-        </span>
+        </span> -->
         </form>
         {% else %}
         <p>No slots currently available.</p>
@@ -99,16 +105,10 @@
       {% endfor %}
     </div>
 
-    <script>
-        function showBooking() {
-    document.getElementById("booking-indicator").classList.remove("hidden");
-  }
-    </script>
-
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %}
     <div
-      id="notification-modal"
+      id="learner-notification-modal"
       class="fixed top-5 right-5 px-4 py-2 rounded shadow-lg"
       style="z-index: 50"
     >
@@ -122,7 +122,7 @@
     </div>
     <script>
       setTimeout(() => {
-        const modal = document.getElementById("notification-modal");
+        const modal = document.getElementById("learner-notification-modal");
         if (modal) {
           modal.style.transition = "opacity 1s";
           modal.style.opacity = 0;
@@ -131,5 +131,12 @@
       }, 4000); // dismiss after 4 seconds
     </script>
     {% endif %} {% endwith %}
+
+    <script>
+      function showBookingWait() {
+        //document.getElementById("booking-indicator").classList.remove("hidden");
+        document.getElementById("booking-indicator").style.display = "block";
+      }
+    </script>
   </body>
 </html>

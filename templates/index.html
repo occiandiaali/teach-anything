@@ -8,13 +8,20 @@
       href="{{url_for('static', filename='/images/skills.svg')}}"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TeachSomeone | Knowledge is power. Either way.</title>
+    <title>TeachAnything | Knowledge is power. Either way.</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
     <style>
+      body {
+        /* background-image: linear-gradient(to right, #ff7e5f, #feb47b);
+        height: 96vh; */
+        background: #80947d;
+        background: linear-gradient(0deg, #329424, #b7d6b7);
+        height: 90vh;
+      }
       .flash.error {
         color: red;
       }
@@ -35,19 +42,48 @@
         border-radius: 5px;
         z-index: 1000; /* ensure it appears above other content */
       }
+
+      .carousel {
+        max-width: 350px;
+        display: flex;
+        align-items: center;
+        margin: 0 auto;
+        overflow-x: auto; /* Enables horizontal scrolling */
+        scroll-snap-type: x mandatory; /* Enables snap scrolling */
+      }
+
+      .card {
+        flex: 0 0 auto; /* Prevents cards from shrinking */
+        width: 350px; /* Set a fixed width for each card */
+        margin-right: 10px; /* Space between cards */
+        position: relative; /* For positioning text */
+        scroll-snap-align: start; /* Aligns cards to the start */
+      }
+
+      .card img {
+        width: 100%; /* Makes image fill the card */
+        height: auto; /* Maintains aspect ratio */
+      }
+
+      .text {
+        position: absolute; /* Positions text over the image */
+        bottom: 10px; /* Adjusts vertical position */
+        left: 10px; /* Adjusts horizontal position */
+        color: white; /* Text color */
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        padding: 5px; /* Adds padding around text */
+      }
     </style>
   </head>
   <body class="bg-gray-100 h-screen">
     {% include 'hero.html' %} {% include 'features.html' %} {% include
     'onboarding.html' %}
 
-    <h2
-      class="p-6 text-base text-center font-semibold leading-7 text-green-600"
-    >
+    <h2 class="p-6 text-base text-center font-semibold leading-7 text-white">
       Get started now
     </h2>
     <p
-      class="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+      class="text-center text-4xl font-bold tracking-tight text-yellow-200 sm:text-5xl"
     >
       Sign up to start teaching.
     </p>
@@ -72,7 +108,7 @@
         <input
           type="email"
           name="email"
-          placeholder="Your Email"
+          placeholder="Email"
           class="w-full border p-2 rounded"
           required
         />
@@ -85,17 +121,17 @@
         />
         <textarea
           name="bio"
-          placeholder="Short description of your specialty"
+          placeholder="Short description of you or your specialty"
           class="w-full border p-2 rounded"
         ></textarea>
         <button
           type="submit"
-          class="bg-black text-white px-4 py-2 rounded hover:bg-white hover:text-black transition-colors"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-white hover:text-black transition-colors"
         >
           Get started for free</button
         ><br />
         <span class="htmx-indicator ml-2 text-sm text-orange-800"
-          >⏳ Generating links...</span
+          >⏳ Generating your web links...</span
         >
       </form>
 
