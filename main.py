@@ -27,7 +27,36 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # Admin client (service role key)
 supabase_admin: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-# pip install sendgrid
+# Mailersend
+from mailersend import MailerSendClient, EmailBuilder
+MAILERSEND_API_KEY = os.getenv("MAILERSEND_API_KEY")
+ms = MailerSendClient(api_key=MAILERSEND_API_KEY)
+
+verified_email_domain = "test-xkjn41mwww54z781.mlsender.net"
+
+def send_generated_links(recipient, subject, body):
+    email = (EmailBuilder()
+             .from_email(f"mail@{verified_email_domain}")
+             .to(recipient).subject(subject=subject).text(body).build())
+    try:
+        response = ms.emails.send(email=email)
+        return response.status_code
+    except Exception as e:
+        flash(f"Error sending email: {e}", "error")
+        print(f"Error sending email: {e}")
+        return None
+
+def send_booking_email(teacher_name, recipient, subject, body):
+    email = (EmailBuilder()
+             .from_email(f"learn_with_{teacher_name}@{verified_email_domain}", teacher_name)
+             .to(recipient).subject(subject=subject).text(body).build())
+    try:
+        response = ms.emails.send(email=email)
+        return response.status_code
+    except Exception as e:
+        flash(f"Error sending email: {e}", "error")
+        print(f"Error sending email: {e}")
+        return None
 # from sendgrid import SendGridAPIClient
 # from sendgrid.helpers.mail import Mail
 
@@ -137,16 +166,39 @@ def register_teacher():
     #     Happy teaching!
     #     """
     # )
+    send_generated_links(
+        email, 
+        subject="Your TeachAnything Links", 
+        body=f"""
+        Welcome {username}!
+        You're taking the first steps towards starting to earn from your skills/knowledge 
+        just by teaching others, comfortably.
+        Below are your generated web links. Share the public page on your social media, WhatsApp, via email, 
+        or just anywhere, with anyone you think is a potential learner. The page contains a display of 
+        the classes/tutorials you intend to offer, and gives visitors the means to pay for/schedule any of them.
+
+        Public page (share this):
+         {public_link}
+
+        Visit your private page (Dashboard) to manage your account, create classes/trainings/courses, and monitor your bookings & earnings. 
+        Upgrade to Premium subscription to also get access to an AI-powered teaching coach.
+
+        Private dashboard (keep this safe):
+         {dashboard_link}
+
+         Happy teaching!    
+        """
+    )
 
 
     return f"""
     <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
       <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <h2 class="text-1xl font-bold mb-4">Congrats on successfully registering!</h2>
-        <p>You're now well on your way to earning good money by teaching what you know.</p>
+        <p>You're now well on your way to earning good money by teaching what you know. We've also sent you an email.</p>
         <p>Visit your Private Dashboard to complete setting-up your account..</p><br/>
         <hr/>
-        <p class="mb-2">Here are your access links:</p>
+        <p class="mb-2">Here are your access links (also sent to your email):</p>
         <p class="mt-4 mb-2">Public page (share this):</p>
         <div class="flex items-center space-x-1">
         <a id="public-link" href="{public_link}" target="_blank" class="text-blue-600 underline">
@@ -333,7 +385,20 @@ def book_slot():
         "status": "pending"
     }).execute()
 
-    #booking_data = booking.data[0]
+    booking_data = booking.data[0]
+    print(booking_data)
+
+    send_booking_email(
+        teacher_name=username, 
+        recipient=learner_email, 
+        subject="Your Booking successful!", 
+        body=f"""
+        You booked {course_data['course_name']} (powered by teachanything.online).
+        Class date: {slot_time.strftime('%A %d %B %Y, %H:%M')}.
+        Link (Click to join class): {meet_url}
+        See you in class!
+        """
+    )
 
     # Redirect to payment gateway (placeholder)
     #return redirect(url_for("initiate_payment", booking_id=booking.data[0]["id"]))

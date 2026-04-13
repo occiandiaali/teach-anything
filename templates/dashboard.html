@@ -52,7 +52,7 @@
 
       <button
         hx-get="/{{ user.username }}/dashboard/confirm_delete"
-        hx-target="#modal-container"
+        hx-target="#logout-container"
         hx-swap="innerHTML"
         class="bg-red-600 text-white mt-2 px-4 py-2 hover:bg-red-100 hover:text-red-600 rounded"
       >
@@ -177,7 +177,7 @@
       <h2 class="text-2xl text-gray-600 font-semibold mt-6">Your Classes</h2>
       <div
         id="status-container"
-        class="text-sm bg-blue-200 text-blue-800 w-64 p-4 mt-2"
+        class="text-sm bg-blue-200 text-blue-800 w-58 p-4 mt-2"
       ></div>
       <div class="divide-y">
         {% for course in courses %} {% set slots_for_course =
