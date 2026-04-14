@@ -171,8 +171,7 @@ def register_teacher():
         subject="Your TeachAnything Links", 
         body=f"""
         Welcome {username}!
-        You're taking the first steps towards starting to earn from your skills/knowledge 
-        just by teaching others, comfortably.
+        You're taking the first steps towards starting to earn from your skills/knowledge just by teaching others, comfortably.
         Below are your generated web links. Share the public page on your social media, WhatsApp, via email, 
         or just anywhere, with anyone you think is a potential learner. The page contains a display of 
         the classes/tutorials you intend to offer, and gives visitors the means to pay for/schedule any of them.
@@ -786,7 +785,7 @@ def confirm_delete(username):
     <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50" style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px;">
       <div class="bg-white rounded-lg shadow-lg p-6 w-96">
         <h2 class="text-xl font-bold mb-4">Confirm Deletion</h2>
-        <p class="mb-4">Are you sure you want to delete your account? This action cannot be undone.</p>
+        <p class="mb-4">Are you sure you want to delete your account? All your data will be lost forever. (This action cannot be undone).</p>
         <div class="flex justify-end space-x-4">
           <button class="bg-gray-400 text-white px-2 py-2 rounded"
                   onclick="this.closest('div.fixed').remove()" style="background-color:black;color:white;padding:6px;margin:6px;border:none;">Cancel</button>

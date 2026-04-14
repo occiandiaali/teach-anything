@@ -94,8 +94,13 @@
 
       <!-- 2. Manage Classes -->
       <h2 class="text-2xl text-gray-600 font-semibold mt-6">Manage Classes</h2>
-      <form
+      <!-- <form
         action="/{{user.username}}/dashboard/courses/add"
+        method="POST"
+        class="mt-2 space-y-2"
+      > -->
+      <form
+        action="{{ url_for('add_course', username=user.username) }}"
         method="POST"
         class="mt-2 space-y-2"
       >
@@ -171,6 +176,7 @@
         >
           Save Course
         </button>
+
         <!-- <span class="htmx-indicator ml-2 text-sm text-blue-500">⏳...</span> -->
       </form>
 
