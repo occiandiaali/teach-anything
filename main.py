@@ -147,7 +147,9 @@ def register_teacher():
     public_link = f"{DOMAIN}/learn_with_{username}"
     dashboard_link = f"{DOMAIN}/{username}/dashboard"
 
-
+    # Take care of user input with spaces
+    replaced_public_link = public_link.replace(" ", "%20")
+    replaced_dashboard_link = dashboard_link.replace(" ", "%20")
     # Generated link
     #link = url_for("teacher_page", username=username, _external=True)
 
@@ -177,13 +179,13 @@ def register_teacher():
         the classes/tutorials you intend to offer, and gives visitors the means to pay for/schedule any of them.
 
         Public page (share this):
-         {public_link}
+         {replaced_public_link}
 
         Visit your private page (Dashboard) to manage your account, create classes/trainings/courses, and monitor your bookings & earnings. 
         Upgrade to Premium subscription to also get access to an AI-powered teaching coach.
 
         Private dashboard (keep this safe):
-         {dashboard_link}
+         {replaced_dashboard_link}
 
          Happy teaching!    
         """
